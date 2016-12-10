@@ -2,6 +2,8 @@ package com.example.helloworld;
 
 import java.io.IOException;
 
+import com.example.helloworld.api.Server;
+
 import android.app.Activity;
 
 import android.content.Intent;
@@ -33,18 +35,17 @@ public class BootActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		//				Handler handler = new Handler();
-		//				handler.postDelayed(new Runnable() {
-		//					private int abcd = 0;
-		//					
-		//					public void run() {
-		//						startLoginActivity();
-		//					}
-		//				}, 1000);
+//				Handler handler = new Handler();
+//				handler.postDelayed(new Runnable() {
+//					private int abcd = 0;
+//					
+//					public void run() {
+//						startLoginActivity();
+//					}
+//				}, 1000);
 
-		OkHttpClient client=new OkHttpClient();
-		Request request=new Request.Builder()
-				.url("http://172.27.0.22:8080/membercenter/api/hello")
+		OkHttpClient client=Server.getSharedClient();
+		Request request=Server.requestBuilderWithApi("hello")
 				.method("GET", null)
 				.build();
 
@@ -52,7 +53,7 @@ public class BootActivity extends Activity {
 
 			@Override
 			public void onResponse(Call arg0, final Response arg1) throws IOException {
-				//				Log.d("response", arg1.toString());
+//				Log.d("response", arg1.toString());
 				BootActivity.this.runOnUiThread(new Runnable() {
 
 					@Override
@@ -73,9 +74,9 @@ public class BootActivity extends Activity {
 
 					@Override
 					public void run() {
-
-						Toast.makeText(BootActivity.this, arg1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-
+						
+							Toast.makeText(BootActivity.this, arg1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+						
 					}
 				});
 
