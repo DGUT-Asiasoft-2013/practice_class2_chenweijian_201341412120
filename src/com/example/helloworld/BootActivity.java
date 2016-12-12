@@ -35,14 +35,14 @@ public class BootActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-//				Handler handler = new Handler();
-//				handler.postDelayed(new Runnable() {
-//					private int abcd = 0;
-//					
-//					public void run() {
-//						startLoginActivity();
-//					}
-//				}, 1000);
+		//				Handler handler = new Handler();
+		//				handler.postDelayed(new Runnable() {
+		//					private int abcd = 0;
+		//					
+		//					public void run() {
+		//						startLoginActivity();
+		//					}
+		//				}, 1000);
 
 		OkHttpClient client=Server.getSharedClient();
 		Request request=Server.requestBuilderWithApi("hello")
@@ -53,7 +53,7 @@ public class BootActivity extends Activity {
 
 			@Override
 			public void onResponse(Call arg0, final Response arg1) throws IOException {
-//				Log.d("response", arg1.toString());
+				//				Log.d("response", arg1.toString());
 				BootActivity.this.runOnUiThread(new Runnable() {
 
 					@Override
@@ -74,9 +74,9 @@ public class BootActivity extends Activity {
 
 					@Override
 					public void run() {
-						
-							Toast.makeText(BootActivity.this, arg1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-						
+
+						Toast.makeText(BootActivity.this, arg1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+
 					}
 				});
 

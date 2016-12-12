@@ -59,4 +59,12 @@ public class PasswordRecoverStep1Fragment extends Fragment {
 			onGoNextListener.onGoNext();
 		}
 	}
+
+	public String getText() {
+		// TODO Auto-generated method stub
+		return fragEmail.getText().toString();
+	
+	}
+
+	
 }

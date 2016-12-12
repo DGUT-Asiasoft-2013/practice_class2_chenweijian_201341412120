@@ -25,6 +25,6 @@ public class Server {
 
 	public static Request.Builder requestBuilderWithApi(String api){
 		return new Request.Builder()
-				.url("http://172.27.0.26:8080/membercenter/api/"+api);
+				.url("http://172.27.0.46:8080/membercenter/api/"+api);
 	}
 }
