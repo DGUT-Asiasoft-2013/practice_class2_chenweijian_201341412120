@@ -2,12 +2,14 @@ package com.example.helloworld;
 
 import java.io.IOException;
 
+import com.example.helloworld.api.Server;
 import com.example.helloworld.fragments.inputcells.PictureInputCellFragment;
 import com.example.helloworld.fragments.inputcells.SimpleTextInputCellFragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;import android.content.DialogInterface;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import okhttp3.Call;
@@ -21,28 +23,29 @@ import okhttp3.Response;
 
 public class RegisterActivity extends Activity {
 	SimpleTextInputCellFragment fragInputCellAccount;
-	SimpleTextInputCellFragment fragInputEmailAddress;
 	SimpleTextInputCellFragment fragInputName;
+	SimpleTextInputCellFragment fragInputEmailAddress;
 	SimpleTextInputCellFragment fragInputCellPassword;
 	SimpleTextInputCellFragment fragInputCellPasswordRepeat;
-	PictureInputCellFragment fragInputAvater;
+	PictureInputCellFragment fragInputAvatar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_register);
+
 		fragInputCellAccount = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_account);
 		fragInputEmailAddress = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_email);
-		fragInputName = (SimpleTextInputCellFragment)getFragmentManager().findFragmentById(R.id.input_name);
+		fragInputName = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_name);
 		fragInputCellPassword = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_password);
 		fragInputCellPasswordRepeat = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_password_repeat);
-		fragInputAvater = (PictureInputCellFragment) getFragmentManager().findFragmentById(R.id.input_picture);
+		fragInputAvatar = (PictureInputCellFragment) getFragmentManager().findFragmentById(R.id.input_avatar);
 
 		findViewById(R.id.btn_submit).setOnClickListener(new View.OnClickListener() {
 
 			@Override
-			public void onClick(View arg0) {
+			public void onClick(View v) {
 				submit();
 			}
 		});
@@ -50,33 +53,30 @@ public class RegisterActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 
 		fragInputCellAccount.setLabelText("账户名");{
-			fragInputCellAccount.setHintText("请输入账户名");
+			fragInputCellAccount.setHintText("请输入账户名");	
 		}
 
-		fragInputEmailAddress.setLabelText("电子邮箱");{
-			fragInputEmailAddress.setHintText("请输入电子邮箱");
+
+		fragInputCellPassword.setLabelText("密码");{
+			fragInputCellPassword.setHintText("请输入密码");
+			fragInputCellPassword.setIsPassword(true);	
+		}
+
+		fragInputCellPasswordRepeat.setLabelText("重复密码");{
+			fragInputCellPasswordRepeat.setHintText("请重复输入密码");
+			fragInputCellPasswordRepeat.setIsPassword(true);	
 		}
 
 		fragInputName.setLabelText("昵称");{
 			fragInputName.setHintText("请输入昵称");
 		}
 
-		fragInputCellPassword.setLabelText("密码");{
-			fragInputCellPassword.setHintText("请输入密码");
-			fragInputCellPassword.setIsPassword(true);
+		fragInputEmailAddress.setLabelText("电子邮件");{
+			fragInputEmailAddress.setHintText("请输入电子邮箱");
 		}
-
-		fragInputCellPasswordRepeat.setLabelText("重复密码");{
-			fragInputCellPasswordRepeat.setHintText("请重复输入密码");
-			fragInputCellPasswordRepeat.setIsPassword(true);
-		}
-
-
-
 	}
 
 	void submit(){
@@ -96,12 +96,11 @@ public class RegisterActivity extends Activity {
 
 		password = MD5.getMD5(password);
 
-
-		String account =fragInputCellAccount.getText();
+		String account = fragInputCellAccount.getText();
 		String name = fragInputName.getText();
 		String email = fragInputEmailAddress.getText();
 
-		OkHttpClient client=new OkHttpClient();
+		OkHttpClient client = Server.getSharedClient();
 
 		MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
 				.setType(MultipartBody.FORM)
@@ -110,19 +109,17 @@ public class RegisterActivity extends Activity {
 				.addFormDataPart("email", email)
 				.addFormDataPart("passwordHash", password);
 
-		if(fragInputAvater.getPngData()!=null){
+		if(fragInputAvatar.getPngData()!=null){
 			requestBodyBuilder
 			.addFormDataPart(
-					"avatar", 
+					"avatar",
 					"avatar",
 					RequestBody
-					.create(MediaType.parse("image/png"), 
-							fragInputAvater.getPngData()));
+					.create(MediaType.parse("image/png"),
+							fragInputAvatar.getPngData()));
 		}
 
-
-		Request request=new Request.Builder()
-				.url("http://172.27.0.46:8080/membercenter/api/register")
+		Request request = Server.requestBuilderWithApi("register")
 				.method("post", null)
 				.post(requestBodyBuilder.build())
 				.build();
@@ -131,52 +128,41 @@ public class RegisterActivity extends Activity {
 		progressDialog.setMessage("请稍候");
 		progressDialog.setCancelable(false);
 		progressDialog.setCanceledOnTouchOutside(false);
+		progressDialog.show();
 
 		client.newCall(request).enqueue(new Callback() {
 
 			@Override
-			public void onResponse(final Call arg0,final Response arg1) throws IOException {
+			public void onResponse(final Call arg0, final Response arg1) throws IOException {
+				final String responseString = arg1.body().string(); //雷：这个函数必须在后台线程中调用
 				runOnUiThread(new Runnable() {
-
-					@Override
 					public void run() {
 						progressDialog.dismiss();
 
-						try{
-							RegisterActivity.this.onResponse(arg0, arg1.body().string());
-						}catch (Exception e) {
+						try {
+							RegisterActivity.this.onResponse(arg0, responseString);
+						} catch (Exception e) {
 							e.printStackTrace();
 							RegisterActivity.this.onFailure(arg0, e);
 						}
-
 					}
 				});
-
 			}
 
 			@Override
 			public void onFailure(final Call arg0, final IOException arg1) {
 				runOnUiThread(new Runnable() {
-
-					@Override
 					public void run() {
 						progressDialog.dismiss();
 
 						RegisterActivity.this.onFailure(arg0, arg1);
-
 					}
 				});
-
 			}
 		});
-
-
-
 	}
 
-
-
-	void onResponse(Call arg0, String responseBody) {
+	void onResponse(Call arg0, String responseBody){
 		new AlertDialog.Builder(this)
 		.setTitle("注册成功")
 		.setMessage(responseBody)
@@ -185,11 +171,9 @@ public class RegisterActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				finish();
-
 			}
 		})
 		.show();
-
 	}
 
 	void onFailure(Call arg0, Exception arg1) {
@@ -198,10 +182,5 @@ public class RegisterActivity extends Activity {
 		.setMessage(arg1.getLocalizedMessage())
 		.setNegativeButton("好", null)
 		.show();
-
 	}
-
-
-
 }
-

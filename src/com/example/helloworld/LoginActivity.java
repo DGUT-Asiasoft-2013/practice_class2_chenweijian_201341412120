@@ -1,6 +1,7 @@
 package com.example.helloworld;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.example.helloworld.api.Server;
 import com.example.helloworld.entity.User;
@@ -14,9 +15,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.Toast;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -42,28 +47,24 @@ public class LoginActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-
-				goLogin();	
+				goLogin();
 			}
 		});
 
-		findViewById(R.id.btn_forgot_password).setOnClickListener(new OnClickListener() {
+		findViewById(R.id.btn_forgot_password).setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				goRecoverPassword();
 			}
 		});
 
-		fragAccount=(SimpleTextInputCellFragment)getFragmentManager().findFragmentById(R.id.input_account);
-		fragPassword=(SimpleTextInputCellFragment)getFragmentManager().findFragmentById(R.id.input_password);
-
+		fragAccount = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_account);
+		fragPassword = (SimpleTextInputCellFragment) getFragmentManager().findFragmentById(R.id.input_password);
 	}
 
 	@Override
 	protected void onResume() {
-
 		super.onResume();
 
 		fragAccount.setLabelText("账户名");
@@ -73,115 +74,72 @@ public class LoginActivity extends Activity {
 		fragPassword.setIsPassword(true);
 	}
 
-	void goLogin() {
-		//		Intent itnt = new Intent(this,HelloWorldActivity.class);
-		//		startActivity(itnt);
+	void goRegister(){
+		Intent itnt = new Intent(this,RegisterActivity.class);
+		startActivity(itnt);
+	}
 
-		String account = fragAccount.getText();
-		String password = fragPassword.getText();
-
-
-
-		password = MD5.getMD5(password);
-
-
-
-		OkHttpClient client=Server.getSharedClient();
+	void goLogin(){
+		OkHttpClient client = Server.getSharedClient();
 
 		MultipartBody requestBody = new MultipartBody.Builder()
 				.addFormDataPart("account", fragAccount.getText())
 				.addFormDataPart("passwordHash", MD5.getMD5(fragPassword.getText()))
 				.build();
 
-
-
-
-		Request request=Server.requestBuilderWithApi("login")
+		Request request = Server.requestBuilderWithApi("login")
 				.method("post", null)
 				.post(requestBody)
 				.build();
 
-		final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
-		progressDialog.setMessage("请稍候");
-		progressDialog.setCancelable(false);
-		progressDialog.setCanceledOnTouchOutside(false);
-		progressDialog.show();
+		final ProgressDialog dlg = new ProgressDialog(this);
+		dlg.setCancelable(false);
+		dlg.setCanceledOnTouchOutside(false);
+		dlg.setMessage("正在登陆");
+		dlg.show();
 
 		client.newCall(request).enqueue(new Callback() {
 
-
 			@Override
-			public void onResponse(final Call arg0,final Response arg1) throws IOException {
-
+			public void onResponse(Call arg0, Response arg1) throws IOException {
+				
 				final String responseString = arg1.body().string();
 				ObjectMapper mapper = new ObjectMapper();
 				final User user = mapper.readValue(responseString, User.class);
-
+				
 				runOnUiThread(new Runnable() {
-
-					@Override
 					public void run() {
-						progressDialog.dismiss();
-
+						dlg.dismiss();
 						new AlertDialog.Builder(LoginActivity.this)
-						.setTitle("登录成功")
 						.setMessage("Hello,"+user.getName())
-						.setPositiveButton("好", new DialogInterface.OnClickListener() {
-
+//						.setMessage(responseString)
+						.setPositiveButton("OK", new DialogInterface.OnClickListener(){
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								Intent itnt = new Intent(LoginActivity.this,HelloWorldActivity.class);
-								startActivity(itnt);
-
-							}
+								Intent itnt = new Intent(LoginActivity.this, HelloWorldActivity.class);
+								startActivity(itnt);	
+							}	
 						})
 						.show();
-
-
 					}
 				});
-
 			}
 
 			@Override
-			public void onFailure(final Call arg0, final IOException arg1) {
+			public void onFailure(Call arg0, final IOException arg1) {
 				runOnUiThread(new Runnable() {
-
-					@Override
 					public void run() {
-						progressDialog.dismiss();
+						dlg.dismiss();
 
-						LoginActivity.this.onFailure(arg0, arg1);
-
+						Toast.makeText(LoginActivity.this, arg1.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 					}
 				});
-
 			}
 		});
-
-
-
-
-	}	
-
-	void goRegister(){
-		Intent itnt = new Intent(this,RegisterActivity.class);
-		startActivity(itnt);
 	}
 
 	void goRecoverPassword(){
-		Intent itnt = new Intent(this,PasswordRecoverActivity.class);
+		Intent itnt = new Intent(this, PasswordRecoverActivity.class);
 		startActivity(itnt);
 	}
-
-
-	void onFailure(Call arg0, Exception arg1) {
-		new AlertDialog.Builder(this)
-		.setTitle("登录失败")
-		.setMessage(arg1.getLocalizedMessage())
-		.setNegativeButton("好", null)
-		.show();
-
-	}
-
 }

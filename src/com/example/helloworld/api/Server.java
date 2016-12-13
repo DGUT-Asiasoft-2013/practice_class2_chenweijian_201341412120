@@ -31,4 +31,14 @@ public class Server {
 		return new Request.Builder()
 				.url(serverAddress+"api/"+api);
 	}
+
+	public static String getServerAddress() {
+		return serverAddress;
+	}
+
+	public static void setServerAddress(String serverAddress) {
+		Server.serverAddress = serverAddress;
+	}
+	
+	
 }
