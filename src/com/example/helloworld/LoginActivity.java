@@ -88,24 +88,24 @@ public class LoginActivity extends Activity {
 
 		OkHttpClient client=Server.getSharedClient();
 
-		MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
-				.setType(MultipartBody.FORM)
-				.addFormDataPart("account", account)
-
-				.addFormDataPart("passwordHash", password);
+		MultipartBody requestBody = new MultipartBody.Builder()
+				.addFormDataPart("account", fragAccount.getText())
+				.addFormDataPart("passwordHash", MD5.getMD5(fragPassword.getText()))
+				.build();
 
 
 
 
 		Request request=Server.requestBuilderWithApi("login")
 				.method("post", null)
-				.post(requestBodyBuilder.build())
+				.post(requestBody)
 				.build();
 
 		final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
 		progressDialog.setMessage("«Î…‘∫Ú");
 		progressDialog.setCancelable(false);
 		progressDialog.setCanceledOnTouchOutside(false);
+		progressDialog.show();
 
 		client.newCall(request).enqueue(new Callback() {
 
@@ -173,7 +173,7 @@ public class LoginActivity extends Activity {
 		Intent itnt = new Intent(this,PasswordRecoverActivity.class);
 		startActivity(itnt);
 	}
-	
+
 
 	void onFailure(Call arg0, Exception arg1) {
 		new AlertDialog.Builder(this)

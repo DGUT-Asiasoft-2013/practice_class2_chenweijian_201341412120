@@ -72,14 +72,14 @@ public class PasswordRecoverStep2Fragment extends Fragment {
 	}
 	
 	void onSubmitClicked(){
-//		if(fragPassword.getText().equals(fragPasswordRepeat.getText())){
+		if(fragPassword.getText().equals(fragPasswordRepeat.getText())){
 			if(onSubmitClickedListener!=null){
 				onSubmitClickedListener.onSubmitClicked();
 			}
-//		}else{
-//			new AlertDialog.Builder(getActivity())
-//			.setMessage("密码不一致")
-//			.show();
-//		}
+		}else{
+			new AlertDialog.Builder(getActivity())
+			.setMessage("密码不一致")
+			.show();
+		}
 	}
 }

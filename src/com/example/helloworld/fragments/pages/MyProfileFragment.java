@@ -44,6 +44,7 @@ public class MyProfileFragment extends Fragment {
 
 		textView.setVisibility(view.GONE);
 		progress.setVisibility(View.VISIBLE);
+		
 		OkHttpClient client= Server.getSharedClient();
 		Request request =Server.requestBuilderWithApi("me")
 				.method("get", null)
