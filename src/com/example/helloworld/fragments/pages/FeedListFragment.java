@@ -62,9 +62,9 @@ public class FeedListFragment extends Fragment {
 					onItemClicked(position);
 				}
 			});
-			
+
 			btnLoadMore.setOnClickListener(new View.OnClickListener() {
-				
+
 				@Override
 				public void onClick(View v) {
 					loadmore();
@@ -94,14 +94,14 @@ public class FeedListFragment extends Fragment {
 			TextView textAuthorName = (TextView)view.findViewById(R.id.username);
 			TextView textDate = (TextView)view.findViewById(R.id.date);
 			AvatarView avatar = (AvatarView)view.findViewById(R.id.avatar);
-			
+
 			Article article = data.get(position);
 
 			textContent.setText(article.getText());
 			textTitle.setText(article.getTitle());
 			textAuthorName.setText(article.getAuthorName());
 			avatar.load(Server.serverAddress + article.getAuthorAvatar());
-			
+
 			String dateStr = DateFormat.format("yyyy-MM-dd hh:mm", article.getCreateDate()).toString();
 			textDate.setText(dateStr);
 
@@ -187,7 +187,7 @@ public class FeedListFragment extends Fragment {
 	void loadmore(){
 		btnLoadMore.setEnabled(false);
 		textLoadMore.setText("载入中…");
-		
+
 		Request request = Server.requestBuilderWithApi("feeds/"+(page+1)).get().build();
 		Server.getSharedClient().newCall(request).enqueue(new Callback() {
 			@Override
@@ -198,7 +198,7 @@ public class FeedListFragment extends Fragment {
 						textLoadMore.setText("加载更多");
 					}
 				});
-				
+
 				try{
 					Page<Article> feeds = new ObjectMapper().readValue(arg1.body().string(), new TypeReference<Page<Article>>() {});
 					if(feeds.getNumber()>page){
@@ -208,7 +208,7 @@ public class FeedListFragment extends Fragment {
 							data.addAll(feeds.getContent());
 						}
 						page = feeds.getNumber();
-						
+
 						getActivity().runOnUiThread(new Runnable() {
 							public void run() {
 								listAdapter.notifyDataSetChanged();
@@ -219,7 +219,7 @@ public class FeedListFragment extends Fragment {
 					ex.printStackTrace();
 				}
 			}
-			
+
 			@Override
 			public void onFailure(Call arg0, IOException arg1) {
 				getActivity().runOnUiThread(new Runnable() {
