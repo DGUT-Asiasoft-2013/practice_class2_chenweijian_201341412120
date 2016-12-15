@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content"
+     android:minHeight="100dp"
+     android:padding="8dp">
     
     <RelativeLayout 
         android:layout_width="60dp"
@@ -34,6 +35,7 @@
         <TextView 
             android:id="@+id/date"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:height="14dp"
             android:layout_gravity="right"
             android:text="Create Date"
